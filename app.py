@@ -11,7 +11,7 @@ hide_streamlit_style = """
             footer {visibility: hidden;}
             </style>
             """
-st.set_page_config(page_title="YouTube Video Summarizer", layout="centered")
+st.set_page_config(page_title="YouTube Video Summarizer", layout="centered", page_icon="ShreyIconS2.png")
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 st.title("YouTube Video Summarizer")
