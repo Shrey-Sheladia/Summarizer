@@ -30,25 +30,29 @@ def getSubTitleText(srtFile):
     return final_text
 
 def get_info(video_url):
-    video_id = get_video_id(video_url)
-    if not video_id:
-        return False
-    try:
-        srt = YouTubeTranscriptApi.get_transcript(video_id)
-    except:
-        return None
 
-    subtitleText = " ".join(getSubTitleText(srt))
-    videoInfo = Video.getInfo(video_id, mode = ResultMode.json)
+    videoInfo = Video.getInfo(video_url, mode = ResultMode.json)
 
     channel = videoInfo["channel"]["name"]
     pubLishDate = videoInfo["publishDate"]
     title = videoInfo["title"]
     viewCount = videoInfo["viewCount"]["text"]
+    video_id = videoInfo["id"]
 
     print(f"got Thumbnail for {title}")
     thumbnail = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
 
+    
+    # video_id = get_video_id(video_url)
+    if not video_id:
+        return False
+    try:
+        srt = YouTubeTranscriptApi.get_transcript(video_id)
+        subtitleText = " ".join(getSubTitleText(srt))
+    except:
+        subtitleText = "None"
+
+    
     info2send = {
         "channel": channel, 
         "title": title,
@@ -60,6 +64,8 @@ def get_info(video_url):
     return (title, channel, thumbnail, info2send)
 
 def get_summary(info2send):
+
+    
     title = info2send["title"]
     print(f"Getting Summary for {title}")
 
@@ -68,6 +74,10 @@ def get_summary(info2send):
                  "content": "You are a YouTube video summarizer. Your name is 'Summarizer' and you were created by 'Shrey'. You are upbeat and fun. In the next message, I will send information of a YouTube vide in a dictionary format. This will have the channel name, the title, view count, publish date, and the subtitles of the video. You will summarize this video, mainly by the subtitles, and reply with that summary. You can use the context provided by the channel name and other info you have if needed.  My following questions may be based on the video summary/description you provide."},
                 {"role": "user",
                  "content": str(info2send)}]
+    
+    if info2send["subtitles"] == "None":
+        return "Summary not available for this video", messages
+
     completion = openai.ChatCompletion.create(
     model = "gpt-3.5-turbo",
     messages = messages)
