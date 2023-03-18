@@ -2,6 +2,8 @@ import openai
 from youtubesearchpython import *
 from youtube_transcript_api import YouTubeTranscriptApi
 import pprint
+import yt_dlp as youtube_dl
+import time
 
 API_KEY = "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"
 pp = pprint.PrettyPrinter(indent=4)
@@ -38,6 +40,7 @@ def get_info(video_url):
     title = videoInfo["title"]
     viewCount = videoInfo["viewCount"]["text"]
     video_id = videoInfo["id"]
+    duration = int(videoInfo["duration"]["secondsText"])
 
     print(f"got Thumbnail for {title}")
     thumbnail = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
@@ -50,7 +53,15 @@ def get_info(video_url):
         srt = YouTubeTranscriptApi.get_transcript(video_id)
         subtitleText = " ".join(getSubTitleText(srt))
     except:
-        subtitleText = "None"
+        if duration < 25 * 60:
+            # try:
+            subtitleText = get_transcript_audio(video_url)
+            # except:
+            #     print("HERE")
+            #     subtitleText = "None"
+        else:
+            print("here")
+            subtitleText = "None"
 
     
     info2send = {
@@ -101,5 +112,39 @@ def get_response(user_message, messages):
 
     return response, messages
 
+def download_youtube_audio(url):
+    filename = str(time.time())
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': 'tempAudio' +filename+'.%(ext)s',
+    }
+
+    # Download the audio
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+    # Return the local mp3 file path
+    
+    mp3_file_path = "tempAudio" + filename + ".mp3"
+    return mp3_file_path
+
+
+def get_transcript_audio(URL):
+
+    # audio_obj = open("temp_audio_file.mp3", "rb")
+    audio_obj = open(download_youtube_audio(URL), "rb")
+    print("GOT AUDIO")
+    response = openai.Audio.transcribe(
+        api_key=API_KEY,
+        model="whisper-1",
+        file = audio_obj
+    )
+
+    return response["text"]
 
 
