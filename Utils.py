@@ -4,8 +4,15 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import pprint
 import yt_dlp as youtube_dl
 import time
+import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
-API_KEY = "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"
+API_KEY = os.environ.get("Open_AI_Key")
+
 pp = pprint.PrettyPrinter(indent=4)
 openai.api_key = API_KEY
 
@@ -52,6 +59,7 @@ def get_info(video_url):
     try:
         srt = YouTubeTranscriptApi.get_transcript(video_id)
         subtitleText = " ".join(getSubTitleText(srt))
+        print(subtitleText)
     except:
         if duration < 25 * 60:
             # try:
