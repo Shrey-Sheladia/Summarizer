@@ -50,6 +50,7 @@ def get_info(video_url):
     duration = int(videoInfo["duration"]["secondsText"])
 
     print(f"got Thumbnail for {title}")
+    print(API_KEY)
     thumbnail = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
 
     
