@@ -12,7 +12,7 @@ except:
     pass
 
 API_KEY = os.environ.get("Open_AI_Key")
-
+print(API_KEY)
 pp = pprint.PrettyPrinter(indent=4)
 openai.api_key = API_KEY
 
@@ -95,6 +95,7 @@ def get_summary(info2send):
                  "content": str(info2send)}]
     
     if info2send["subtitles"] == "None":
+        print(1)
         return "Summary not available for this video", messages
 
     completion = openai.ChatCompletion.create(
