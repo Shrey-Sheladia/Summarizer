@@ -12,7 +12,7 @@ except:
     pass
 
 API_KEY = os.environ.get("Open_AI_Key")
-print(API_KEY)
+print(f"KEY>>{API_KEY}")
 pp = pprint.PrettyPrinter(indent=4)
 openai.api_key = API_KEY
 
